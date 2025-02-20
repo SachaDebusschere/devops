@@ -12,7 +12,4 @@ jobs :
       - name: Checkout du code
         uses: actions/checkout@v4
       - name: Récupérer le nom du dernier commit
-        id: nom-du-commit
-        run: git log -1 --pretty=%B
-      - name: Afficher le nom du dernier commit
-        run: echo "${{ steps.nom-du-commit.outputs.nom }}"
+        run: echo "nom=$(git log -1 --pretty=%B)"
