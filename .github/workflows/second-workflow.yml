@@ -4,23 +4,8 @@ on :
   push :
     branches :
       - main
-      
+
   workflow_dispatch:
-    inputs:
-      raison:
-        description: 'Raison du lancement manuel'
-        required: true
-        type: string
-      environnement:
-        description: 'ubuntu-latest ou ubuntu-22.04'
-        required: false
-        type: choice
-        options:
-          - dev
-          - staging
-          - prod
-        default: 'dev'
-    
 
 jobs :
   afficher-message :

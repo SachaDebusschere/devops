@@ -1,0 +1,30 @@
+name: Installer les outils nécessaires
+
+on:
+    push:
+        branches:
+            - main
+
+    workflow_dispatch:
+
+jobs:
+    installer-dependances:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Cloner le dépot Github
+              uses: actions/checkout@v4
+
+            - name: Installer node JS
+              uses: actions/setup-node@v4
+              with:
+                node-version: 22
+
+            - name: Installer Python
+              uses: actions/setup-python@v5
+              with:
+                python-version: 3.13
+
+            - name: Vérifier les installations
+              run : |
+                echo "Version de Node.js : $(node -v)"
+                echo "Version de Python : $(python --version)"
