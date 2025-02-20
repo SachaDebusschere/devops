@@ -1,0 +1,39 @@
+name: Déploiement automatique de mise en production
+
+on:
+    pull_request:
+        types:
+            - closed
+    workflow_dispatch:
+
+jobs:
+    deploy-to-prod:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Cloner le dépot Github
+              uses: actions/checkout@v4
+
+            - name: Installer Node JS
+              uses: actions/setup-node@v4
+              with:
+                node-version: 22
+
+            - name: Installer les dépendances
+              run: |
+                npm install
+                npm run build
+
+            - name: Configuration de la clé SSH
+              run: |
+                mkdir -p ~/.ssh
+                echo " ${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+                chmod 600 ~/.ssh/id_rsa
+
+            - name: Déploiement sur le serveur de production
+              run: |
+                scp -o StrictHostKeyChecking=no -r dist/* ${{secrets.PROD_SSH_USER}}@${{secrets.PROD_SERVER}}:/var/www/html/
+
+            - name: Redémarrer le serveur
+              run: |
+                ssh -o StrictHostKeyChecking=no ${{secrets.PROD_SSH_USER}}@${{secrets.PROD_SERVER}} 
+                sudo systemctl restart apache2
