@@ -1,0 +1,60 @@
+name: Génération d'une image via IA
+
+on:
+    workflow_dispatch:
+
+jobs:
+    generate-image:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Cloner le dépot Github
+              uses: actions/checkout@v4
+
+            - name: Récupérer le nom du dernier commit
+              run: echo "nom=$(git log -1 --pretty=%B)"
+
+            - name: Générer l'image
+              run: |
+                echo "url=$(curl -s -d '{"params":[{"name":"Ma belle image","text":$nom,"color":"#333","backgroundColor":"#f9f9f9","borderColor":"#ddd","borderWidth":"1px","borderRadius":"5px","opacity":1}]}' \
+                -H "Authorization: Bearer ${{ secrets.API_KEY }}" \
+                -H "Content-Type: application/json" \
+                -X POST https://api.dynapictures.com/designs/6c2999aa36 | jq -r '.imageUrl')"
+                curl -o image.png $url
+
+            - name: Upload de l'image
+              uses: actions/upload-artifact@v4
+              with:
+                name: image-de-fou
+                path: \images\image.png
+
+            
+
+    deploy-image-on-github-pages:
+        runs-on: ubuntu-latest
+        needs: generate-image
+        steps:
+            - name : Télécharger l'Artefact stocké
+              uses: actions/download-artifact@v4
+              with:
+                name: image-de-fou
+                path: .\images\
+
+            - name: Génération d'un fichier index.html listant les images
+              run: |
+                echo "<html><body>" > index.html
+                for file in .\images\*.png; do
+                    echo "<img src="$file" alt="Image de fou">" >> index.html
+                done
+                echo "</body></html>" >> index.html
+
+            - name: Publication du site Github Pages
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                github_token: ${{ secrets.GITHUB_TOKEN }}
+                publish_dir: ./
+              
+
+
+            
+
+            
