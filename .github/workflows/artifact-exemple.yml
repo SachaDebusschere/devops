@@ -1,0 +1,39 @@
+name: Gestion des Artefacts
+
+on:
+    pull_request:
+        types:
+            - opened
+    workflow_dispatch:
+
+jobs:
+    generate-artifact:
+        runs-on: windows-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Générer un fichier texte sur Windows
+              run: echo "Ceci est un Artefacts." | Out-File -FilePath output.txt -Encoding utf-8
+              shell: pwsh
+
+            - name : Sauvegarder le fichier en tant que Artefact
+              uses: actions/upload-artifact@v4
+              with:
+                name: fichier-artefacts
+                path: output.txt
+
+    use-artifacts:
+        runs-on: windows-latest
+        needs: generate-artifact
+        steps:
+            - name: Télécharger l'Artefact stocké
+              uses: actions/download-artifact@v4
+              with:
+                name: fichier-artefacts
+                path: .\artifacts\
+
+            - name: Afficher le contenu de l'Artefact
+              run: Get-Content .\artifacts\output.txt
+              shell: pwsh
+              
