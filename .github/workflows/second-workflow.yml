@@ -1,0 +1,16 @@
+name : Mon deuxième workflow
+
+on :
+  push :
+    branches :
+      - main
+
+jobs :
+  afficher-message :
+    runs-on: ubuntu-latest
+    steps :
+      - name : Récupérer le nom du dernier commit
+        id : nom-du-commit
+        run : git log -1 --pretty=%B
+      - name : Afficher le nom du dernier commit
+        run : echo ${{ steps.nom-du-commit.outputs.nom }}
