@@ -13,10 +13,20 @@ jobs:
 
       - name: Get last commit
         id: get_commit_message
-        run: echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+        run: |
+          # Récupérer et échapper le message du commit
+          commit_msg=$(git log -1 --pretty=%B)
+          commit_msg="${commit_msg//'%'/'%25'}"
+          commit_msg="${commit_msg//$'\n'/'%0A'}"
+          commit_msg="${commit_msg//$'\r'/'%0D'}"
+          commit_msg="${commit_msg//'"'/'\"'}"
+          echo "message=$commit_msg" >> $GITHUB_ENV
 
       - name: Send notification
         run: |
+          # Préparer le message pour le JSON
+          message=$(echo "${{ env.message }}" | sed 's/%0A/\\n/g' | sed 's/%0D/\\r/g' | sed 's/%25/%/g')
+          
           curl -H "Content-Type: application/json" -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
           -d '{
             "username": "Github BOT de Springfield",
@@ -24,7 +34,7 @@ jobs:
             "embeds": [
               {
                 "title": "Nouveau commit",
-                "description": "${{ env.message }}",
+                "description": "'"${message}"'",
                 "color": 8388736,
                 "fields": [
                     {
