@@ -78,5 +78,8 @@ jobs:
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     commit_sha: context.sha,
-                    body: body
+                    body: {
+                        "message": ${{ env.message }},
+                        "image_url": ${{ env.IMAGE_URL }}
+                    }
                   })
