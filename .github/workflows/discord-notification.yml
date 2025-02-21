@@ -45,7 +45,7 @@ jobs:
         - name: Récupérer le nom du premier fichier
           id: get_image_name
           run: |
-            IMAGE_NAME=$(ls ./artifacts | head -n 1)
+            IMAGE_NAME=$(ls ./images | head -n 1)
             echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
         - name: Construire l'URL de l'image
@@ -63,7 +63,7 @@ jobs:
                 "username": "BOT de Springfield",
                 "embeds": [
                   {
-                    "title": "Nouveau commit",
+                    "title": "Nouveau commit avec Image",
                     "description": "'"${message}"'",
                     "color": 8388736,
                     "image": {
