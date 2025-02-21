@@ -48,11 +48,16 @@ jobs:
             IMAGE_NAME=$(ls ./images | head -n 1)
             echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
 
-        - name: Construire l'URL de l'image
+        - name: Publication du site Github Pages
+          uses: peaceiris/actions-gh-pages@v4
+          with:
+              github_token: ${{ secrets.GITHUB_TOKEN }}
+              publish_dir: ./
+
+        - name: Construire l'URL de l'image GitHub Pages
           run: |
-            REPO_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
-            BRANCH="${GITHUB_REF#refs/heads/}"
-            echo "IMAGE_URL=$REPO_URL/blob/$BRANCH/images/${{ env.IMAGE_NAME }}?raw=true" >> $GITHUB_ENV
+            PAGES_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+            echo "IMAGE_URL=$PAGES_URL/images/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
 
         - name: Envoyer la notification Discord
           run: |
