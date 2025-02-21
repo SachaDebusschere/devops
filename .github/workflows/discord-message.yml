@@ -13,7 +13,13 @@ jobs:
 
             - name: Récupérer le message du dernier commit
               id: get_commit_message
-              run: echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+              run: |
+                commit_msg=$(git log -1 --pretty=%B)
+                # Échapper les caractères spéciaux et les retours à la ligne
+                commit_msg="${commit_msg//'%'/'%25'}"
+                commit_msg="${commit_msg//$'\n'/'%0A'}"
+                commit_msg="${commit_msg//$'\r'/'%0D'}"
+                echo "message=$commit_msg" >> $GITHUB_ENV
 
             - name: Envoyer le message sur Discord
               run: |
