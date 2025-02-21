@@ -1,4 +1,4 @@
-name: Ajout d'un commentaire automatique sur les PR wa la folie
+name: Ajout d'un commentaire automatique sur les PR
 
 permissions:
     issues: write
