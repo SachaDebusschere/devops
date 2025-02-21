@@ -50,10 +50,10 @@ jobs:
 
         - name: Construire l'URL de l'image
           run: |
-            REPO_URL="https://raw.githubusercontent.com/${{ github.repository }}/main"
-            echo "IMAGE_URL=$REPO_URL/images/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
+            REPO_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}"
+            BRANCH="${GITHUB_REF#refs/heads/}"
+            echo "IMAGE_URL=$REPO_URL/blob/$BRANCH/images/${{ env.IMAGE_NAME }}?raw=true" >> $GITHUB_ENV
 
-        
         - name: Envoyer la notification Discord
           run: |
             message=$(echo "${{ env.message }}" | sed 's/%0A/\\n/g' | sed 's/%0D/\\r/g' | sed 's/%25/%/g')
