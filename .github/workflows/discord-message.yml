@@ -13,7 +13,7 @@ jobs:
 
             - name: Récupérer le message du dernier commit
               id: get_commit_message
-              run: echo "MESSAGE=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+              run: echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
 
             - name: Envoyer le message sur Discord
               run: |
@@ -24,7 +24,7 @@ jobs:
                     \"embeds\": [
                         {
                         \"title\": \"Nouveau commit !\",
-                        \"description\": \"Le dernier commit est : ${{ env.MESSAGE }}\",
+                        \"description\": \"Le dernier commit est : ${{ env.message }}\",
                         \"color\": 0x0099ff,
                         \"footer\": {
                             \"text\": \"GitHub Actions : Automatisation\"
