@@ -11,33 +11,34 @@ jobs:
             - name: Cloner le dépot Github
               uses: actions/checkout@v4
 
-            - name: Récupérer le message du dernier commit
+            - name: Get last commit
               id: get_commit_message
-              run: |
-                commit_msg=$(git log -1 --pretty=%B)
-                # Échapper les caractères spéciaux et les retours à la ligne
-                commit_msg="${commit_msg//'%'/'%25'}"
-                commit_msg="${commit_msg//$'\n'/'%0A'}"
-                commit_msg="${commit_msg//$'\r'/'%0D'}"
-                echo "message=$commit_msg" >> $GITHUB_ENV
+              run: echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
 
             - name: Envoyer le message sur Discord
-              run: |
-                # Décoder le message pour le JSON
-                message=$(echo "${{ env.message }}" | sed 's/%0A/\\n/g' | sed 's/%0D/\\r/g' | sed 's/%25/%/g')
-                
+              run: |                
                 curl -H "Content-Type: application/json" -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
                 -d "{
                     \"username\": \"GitHub BOT de Springfield\",
                     \"avatar_url\": \"https://media.ouest-france.fr/v1/pictures/MjAxMzA5NzMyMWQwNDUyMDU4MjMwNzVlOGQzMmVlYzI5ZTg1OTY?width=1260&height=708&focuspoint=50%2C25&cropresize=1&client_id=bpeditorial&sign=abe032db5be09ca8dbc5912254112fb3f936ae6d2255a6426d863b0666294f1e\",
-                    \"embeds\": [
+                    "embeds": [
                         {
-                        \"title\": \"Nouveau commit !\",
-                        \"description\": \"Le dernier commit est : ${message}\",
-                        \"color\": 0x0099ff,
-                        \"footer\": {
-                            \"text\": \"GitHub Actions : Automatisation\"
-                        }
+                            "title": "New commit",
+                            "description": "${{ env.message }}",
+                            "color": 8388736,
+                            "fields": [
+                                {
+                                    "name": "Repository",
+                                    "value": "[${{ github.repository }}](https://github.com/${{ github.repository }})"
+                                },
+                                {
+                                  "name": "Branch",
+                                  "value": "${{ github.ref }}"
+                                }
+                            ],
+                            "footer": {
+                                "text": "Github Actions - Automation"
+                            }
                         }
                     ]
                 }"
