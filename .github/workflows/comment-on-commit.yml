@@ -74,9 +74,9 @@ jobs:
                     message: process.env.message,
                     image_url: process.env.IMAGE_URL
                   });
-                  github.rest.issues.createComment({
-                    issue_number: context.issue.number,
+                  github.rest.repos.createCommitComment({
                     owner: context.repo.owner,
                     repo: context.repo.repo,
+                    commit_sha: context.sha,
                     body: body
                   })
