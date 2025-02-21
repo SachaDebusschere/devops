@@ -1,0 +1,62 @@
+name: Discord Notification
+
+on:
+    push:
+    workflow_dispatch:
+  
+jobs:
+    send-discord-notification:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Cloner le repository
+          uses: actions/checkout@v4
+
+        - name: Récupérer le message du dernier commit
+          id: get_commit_message
+          run: |
+            commit_msg=$(git log -1 --pretty=%B)
+            commit_msg="${commit_msg//'%'/'%25'}"
+            commit_msg="${commit_msg//$'\n'/'%0A'}"
+            commit_msg="${commit_msg//$'\r'/'%0D'}"
+            commit_msg="${commit_msg//'"'/'\"'}"
+            echo "message=$commit_msg" >> $GITHUB_ENV
+        
+        - name : Télécharger l'Artefact stocké
+          uses: actions/download-artifact@v4
+          with:
+            name: image-de-fou
+            path: ./images/
+        
+        - name: Récupérer le nom du premier fichier
+          id: get_image_name
+          run: |
+            IMAGE_NAME=$(ls ./artifacts | head -n 1)
+            echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+
+        - name: Construire l'URL de l'image
+          run: |
+            REPO_URL="https://github.com/${{ github.repository }}"
+            echo "IMAGE_URL=$REPO_URL/raw/main/images/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
+
+        
+        - name: Envoyer la notification Discord
+          run: |
+            message=$(echo "${{ env.message }}" | sed 's/%0A/\\n/g' | sed 's/%0D/\\r/g' | sed 's/%25/%/g')
+            
+              curl -H "Content-Type: application/json" -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
+              -d '{
+                "username": "BOT de Springfield",
+                "embeds": [
+                  {
+                    "title": "Nouveau commit",
+                    "description": "'"${message}"'",
+                    "color": 8388736,
+                    "image": {
+                      "url": "${{ env.IMAGE_URL }}"
+                    },
+                    "footer": {
+                      "text": "Github Actions - Automatisation"
+                    }
+                  }
+                ]
+              }'
