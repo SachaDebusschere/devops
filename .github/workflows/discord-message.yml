@@ -1,46 +1,44 @@
-name: Envoyer un message sur Discord
+name: Envoyer un message à Discord
 
 on:
-    push:
-    workflow_dispatch:
+  push:
+  workflow_dispatch:
 
 jobs:
-    send-discord:
-        runs-on: ubuntu-latest
-        steps:
-            - name: Cloner le dépot Github
-              uses: actions/checkout@v4
+  send-discord-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Get last commit
-              id: get_commit_message
-              run: echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
+      - name: Get last commit
+        id: get_commit_message
+        run: echo "message=$(git log -1 --pretty=%B)" >> $GITHUB_ENV
 
-            - name: Envoyer le message sur Discord
-              run: |                
-                curl -H "Content-Type: application/json" -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
-                -d "{
-                    \"username\": \"GitHub BOT de Springfield\",
-                    \"avatar_url\": \"https://media.ouest-france.fr/v1/pictures/MjAxMzA5NzMyMWQwNDUyMDU4MjMwNzVlOGQzMmVlYzI5ZTg1OTY?width=1260&height=708&focuspoint=50%2C25&cropresize=1&client_id=bpeditorial&sign=abe032db5be09ca8dbc5912254112fb3f936ae6d2255a6426d863b0666294f1e\",
-                    "embeds": [
-                        {
-                            "title": "New commit",
-                            "description": "${{ env.message }}",
-                            "color": 8388736,
-                            "fields": [
-                                {
-                                    "name": "Repository",
-                                    "value": "[${{ github.repository }}](https://github.com/${{ github.repository }})"
-                                },
-                                {
-                                  "name": "Branch",
-                                  "value": "${{ github.ref }}"
-                                }
-                            ],
-                            "footer": {
-                                "text": "Github Actions - Automation"
-                            }
-                        }
-                    ]
-                }"
-              
-              
+      - name: Send notification
+        run: |
+          curl -H "Content-Type: application/json" -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
+          -d '{
+            "username": "Github BOT de Springfield",
+            "avatar_url": "https://imgur.com/gallery/id-stay-away-from-springfield-if-i-were-you-5XbKwJU",
+            "embeds": [
+              {
+                "title": "Nouveau commit",
+                "description": "${{ env.message }}",
+                "color": 8388736,
+                "fields": [
+                    {
+                        "name": "Repository",
+                        "value": "[${{ github.repository }}](https://github.com/${{ github.repository }})"
+                    },
+                    {
+                        "name": "Branch",
+                        "value": "${{ github.ref }}"
+                    }
+                ],
+                "footer": {
+                  "text": "Github Actions - Automatisation"
+                }
+              }
+            ]
+          }'
