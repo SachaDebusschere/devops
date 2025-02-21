@@ -20,11 +20,26 @@ jobs:
             commit_msg="${commit_msg//$'\r'/'%0D'}"
             commit_msg="${commit_msg//'"'/'\"'}"
             echo "message=$commit_msg" >> $GITHUB_ENV
-        
+
+        - name: Générer l'image
+          run: |
+              url=$(curl -s -d "{\"params\":[{\"name\":\"Ma belle image\",\"text\":\"A beautiful rose in a pot\",\"color\":\"#333\",\"backgroundColor\":\"#f9f9f9\",\"borderColor\":\"#ddd\",\"borderWidth\":\"1px\",\"borderRadius\":\"5px\",\"opacity\":1}]}" \
+              -H "Authorization: Bearer ${{ secrets.API_KEY }}" \
+              -H "Content-Type: application/json" \
+              -X POST https://api.dynapictures.com/designs/1fc38eb648 | jq -r '.imageUrl')
+              mkdir -p ./images
+              wget -O ./images/image.png "$url"
+
+        - name: Upload de l'image
+          uses: actions/upload-artifact@v4
+          with:
+              name: image-de-fou-2
+              path: ./images/image.png
+
         - name : Télécharger l'Artefact stocké
           uses: actions/download-artifact@v4
           with:
-            name: image-de-fou
+            name: image-de-fou-2
             path: ./images/
         
         - name: Récupérer le nom du premier fichier
