@@ -30,7 +30,6 @@ jobs:
           curl -H "Content-Type: application/json" -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
           -d '{
             "username": "BOT de Springfield",
-            "avatar_url": "../Discord_BOT_PP.jpeg",
             "embeds": [
               {
                 "title": "Nouveau commit",
