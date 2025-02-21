@@ -1,0 +1,84 @@
+name: Ajouter un commentaire sur les commits
+
+on:
+    push:
+        branches:
+            - main
+
+permissions:
+    contents: write
+    pages: write
+    issues: write
+
+jobs:
+    add-comment:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Récupérer le message du dernier commit
+              id: get_commit_message
+              run: |
+                commit_msg=$(git log -1 --pretty=%B)
+                echo "message=$commit_msg" >> $GITHUB_ENV
+            
+                - name: Récupérer le message du dernier commit
+                id: get_commit_message
+                run: |
+                  commit_msg=$(git log -1 --pretty=%B)
+                  commit_msg="${commit_msg//'%'/'%25'}"
+                  commit_msg="${commit_msg//$'\n'/'%0A'}"
+                  commit_msg="${commit_msg//$'\r'/'%0D'}"
+                  commit_msg="${commit_msg//'"'/'\"'}"
+                  echo "message=$commit_msg" >> $GITHUB_ENV
+      
+            - name: Générer l'image
+              run: |
+                    url=$(curl -s -d "{\"params\":[{\"name\":\"Ma belle image\",\"text\":\"A beautiful rose in a pot\",\"color\":\"#333\",\"backgroundColor\":\"#f9f9f9\",\"borderColor\":\"#ddd\",\"borderWidth\":\"1px\",\"borderRadius\":\"5px\",\"opacity\":1}]}" \
+                    -H "Authorization: Bearer ${{ secrets.API_KEY }}" \
+                    -H "Content-Type: application/json" \
+                    -X POST https://api.dynapictures.com/designs/1fc38eb648 | jq -r '.imageUrl')
+                    mkdir -p ./images
+                    wget -O ./images/image.png "$url"
+      
+            - name: Upload de l'image
+              uses: actions/upload-artifact@v4
+              with:
+                    name: image-de-fou-2
+                    path: ./images/image.png
+      
+            - name : Télécharger l'Artefact stocké
+              uses: actions/download-artifact@v4
+              with:
+                  name: image-de-fou-2
+                  path: ./images/
+              
+            - name: Récupérer le nom du premier fichier
+              id: get_image_name
+              run: |
+                  IMAGE_NAME=$(ls ./images | head -n 1)
+                  echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+      
+            - name: Publication du site Github Pages
+              uses: peaceiris/actions-gh-pages@v4
+              with:
+                    github_token: ${{ secrets.GITHUB_TOKEN }}
+                    publish_dir: ./
+      
+            - name: Construire l'URL de l'image GitHub Pages
+              run: |
+                  PAGES_URL="https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}"
+                  echo "IMAGE_URL=$PAGES_URL/images/${{ env.IMAGE_NAME }}" >> $GITHUB_ENV
+            
+            - name: Ajouter un commentaire sur le commit
+              uses: actions/github-script@v6
+              with:
+                github-token: ${{ secrets.GITHUB_TOKEN }}
+                script: |
+                  github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: {
+                        "message": ${{ env.message }},
+                        "image_url": ${{ env.IMAGE_URL }}
+                    }
+                  })
