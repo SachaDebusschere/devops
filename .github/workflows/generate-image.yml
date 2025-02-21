@@ -22,7 +22,7 @@ jobs:
                 url=$(curl -s -d "{\"params\":[{\"name\":\"Ma belle image\",\"text\":\"A beautiful rose in a pot\",\"color\":\"#333\",\"backgroundColor\":\"#f9f9f9\",\"borderColor\":\"#ddd\",\"borderWidth\":\"1px\",\"borderRadius\":\"5px\",\"opacity\":1}]}" \
                 -H "Authorization: Bearer ${{ secrets.API_KEY }}" \
                 -H "Content-Type: application/json" \
-                -X POST https://api.dynapictures.com/designs/6c2999aa36 | jq -r '.imageUrl')
+                -X POST https://api.dynapictures.com/designs/1fc38eb648 | jq -r '.imageUrl')
                 mkdir -p ./images
                 wget -O ./images/image.png "$url"
 
