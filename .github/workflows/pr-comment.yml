@@ -1,4 +1,4 @@
-name: Ajout d'un commentaire automatique sur les PR
+name: Ajout d'un commentaire automatique sur les PR wa la folie
 
 on:
     pull_request:
