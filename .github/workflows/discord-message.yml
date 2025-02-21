@@ -23,6 +23,9 @@ jobs:
 
             - name: Envoyer le message sur Discord
               run: |
+                # Décoder le message pour le JSON
+                message=$(echo "${{ env.message }}" | sed 's/%0A/\\n/g' | sed 's/%0D/\\r/g' | sed 's/%25/%/g')
+                
                 curl -H "Content-Type: application/json" -X POST ${{ secrets.DISCORD_WEBHOOK_URL }} \
                 -d "{
                     \"username\": \"GitHub BOT de Springfield\",
@@ -30,7 +33,7 @@ jobs:
                     \"embeds\": [
                         {
                         \"title\": \"Nouveau commit !\",
-                        \"description\": \"Le dernier commit est : ${{ env.message }}\",
+                        \"description\": \"Le dernier commit est : ${message}\",
                         \"color\": 0x0099ff,
                         \"footer\": {
                             \"text\": \"GitHub Actions : Automatisation\"
