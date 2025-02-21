@@ -14,15 +14,12 @@ jobs:
     add-comment:
         runs-on: ubuntu-latest
         steps:
+            - name: Cloner le dépot Github
+              uses: actions/checkout@v4
+            
             - name: Récupérer le message du dernier commit
               id: get_commit_message
               run: |
-                commit_msg=$(git log -1 --pretty=%B)
-                echo "message=$commit_msg" >> $GITHUB_ENV
-            
-                - name: Récupérer le message du dernier commit
-                id: get_commit_message
-                run: |
                   commit_msg=$(git log -1 --pretty=%B)
                   commit_msg="${commit_msg//'%'/'%25'}"
                   commit_msg="${commit_msg//$'\n'/'%0A'}"
