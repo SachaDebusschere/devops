@@ -26,7 +26,7 @@ jobs:
               uses: actions/upload-artifact@v4
               with:
                 name: image-de-fou
-                path: \images\image.png
+                path: ./images/image.png
 
             
 
@@ -38,12 +38,12 @@ jobs:
               uses: actions/download-artifact@v4
               with:
                 name: image-de-fou
-                path: .\images\
+                path: ./images/
 
             - name: Génération d'un fichier index.html listant les images
               run: |
                 echo "<html><body>" > index.html
-                for file in .\images\*.png; do
+                for file in ./images/*.png; do
                     echo "<img src="$file" alt="Image de fou">" >> index.html
                 done
                 echo "</body></html>" >> index.html
